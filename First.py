@@ -19,12 +19,12 @@ def load_model():
 # Load the model once and reuse it
 model = load_model()
 
-# Set the background image
+# Set the background image to a waste-related image
 st.markdown(
     """
     <style>
     .stApp {
-        background-image: url("https://example.com/your-background-image.jpg");
+        background-image: url("https://www.example.com/waste-background.jpg"); /* Replace with your waste image URL */
         background-size: cover;
         background-position: center;
         color: white; /* Change text color for better visibility */
