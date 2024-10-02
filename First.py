@@ -1,84 +1,45 @@
-import time
 import streamlit as st
+from keras.models import load_model as model_arc  # Ensure this function is defined
 import numpy as np
+import os
 from PIL import Image
-import urllib.request
-from utils import *  # Ensure this file contains preprocess(), model_arc(), gen_labels()
 
-# Generate the labels
-labels = gen_labels()
+# Define the path to your model weights
+model_weights_path = './weights/modelnew.h5'
 
-# HTML for the title and header
-html_temp = '''
-  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: -50px">
-    <div style = "display: flex; flex-direction: row; align-items: center; justify-content: center;">
-     <center><h1 style="color: #000; font-size: 50px;"><span style="color: #0e7d73">Smart </span>Garbage</h1></center>
-    <img src="https://cdn-icons-png.flaticon.com/128/1345/1345823.png" style="width: 0px;">
-    </div>
-    <div style="margin-top: -20px">
-    <img src="https://i.postimg.cc/W3Lx45QB/Waste-management-pana.png" style="width: 400px;">
-    </div>  
-  </div>
-'''
-st.markdown(html_temp, unsafe_allow_html=True)
-
-# Subheading for the classifier
-html_temp = '''
-    <div>
-    <center><h3 style="color: #008080; margin-top: -20px">Check the type here</h3></center>
-    </div>
-'''
-st.markdown(html_temp, unsafe_allow_html=True)
-
-# Upload options for the user
-opt = st.selectbox("How do you want to upload the image for classification?", 
-                   ('Please Select', 'Upload image via link', 'Upload image from device'))
-
-# Function to load and cache the model (so it's loaded only once)
-@st.cache(allow_output_mutation=True)
+@st.cache_resource(allow_output_mutation=True)  # Use cache_resource for loading the model
 def load_model():
     model = model_arc()  # Ensure this function returns the correct model architecture
-    model.load_weights("./weights/modelnew.h5")  # Load the pre-trained model weights
+    if os.path.exists(model_weights_path):
+        model.load_weights(model_weights_path)  # Load the pre-trained weights
+    else:
+        st.error("Model weights file not found. Please check the path.")
     return model
 
 # Load the model once and reuse it
 model = load_model()
 
 # Image uploading logic
-image = None
-if opt == 'Upload image from device':
-    file = st.file_uploader('Select', type=['jpg', 'png', 'jpeg'])
-    if file is not None:
-        image = Image.open(file)
+st.title("Waste Classification Model")
+st.write("Upload an image of waste for classification.")
 
-elif opt == 'Upload image via link':
-    try:
-        img_url = st.text_input('Enter the Image Address')
-        if img_url:
-            image = Image.open(urllib.request.urlopen(img_url))
-    except Exception as e:
-        if st.button('Submit'):
-            st.error("Please Enter a valid Image Address!")
-            time.sleep(4)
+image_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-# Display the uploaded image
-if image is not None:
-    st.image(image, width=300, caption='Uploaded Image')
+if image_file is not None:
+    # Load and preprocess the image
+    image = Image.open(image_file)
+    st.image(image, caption="Uploaded Image.", use_column_width=True)
+    st.write("")
+    st.write("Classifying...")
 
-    # Predict button logic
-    if st.button('Predict'):
-        # Preprocess the image using the utility function
-        img = preprocess(image)
+    # Preprocess the image for your model (you need to adjust this based on your model's input requirements)
+    image = image.resize((224, 224))  # Example size; change it as needed
+    image_array = np.array(image) / 255.0  # Normalize the image
+    image_array = np.expand_dims(image_array, axis=0)  # Add batch dimension
 
-        # Model prediction
-        prediction = model.predict(img[np.newaxis, ...])
+    # Make prediction
+    prediction = model.predict(image_array)
 
-        # Display the result with the class label
-        st.info(f'Hey! The uploaded image has been classified as "{labels[np.argmax(prediction[0], axis=-1)]} product".')
-
-# Handle any exceptions gracefully
-try:
-    # This is moved inside the try block
-    pass  # You can handle specific code here if needed
-except Exception as e:
-    st.info(f"Error: {e}")
+    # Assuming your model outputs class probabilities
+    predicted_class = np.argmax(prediction, axis=1)
+    st.write(f"Predicted Class: {predicted_class[0]}")  # Adjust based on your class mapping
