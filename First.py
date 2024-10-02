@@ -1,13 +1,13 @@
 import streamlit as st
-from keras.models import load_model as model_arc  # Ensure this function is defined
 import numpy as np
 import os
 from PIL import Image
+from utils import preprocess, model_arc, gen_labels  # Importing from utils.py
 
 # Define the path to your model weights
 model_weights_path = './weights/modelnew.h5'
 
-@st.cache_resource(allow_output_mutation=True)  # Use cache_resource for loading the model
+@st.cache_resource  # Use cache_resource for loading the model
 def load_model():
     model = model_arc()  # Ensure this function returns the correct model architecture
     if os.path.exists(model_weights_path):
@@ -19,7 +19,7 @@ def load_model():
 # Load the model once and reuse it
 model = load_model()
 
-# Image uploading logic
+# Streamlit app layout
 st.title("Waste Classification Model")
 st.write("Upload an image of waste for classification.")
 
@@ -32,14 +32,17 @@ if image_file is not None:
     st.write("")
     st.write("Classifying...")
 
-    # Preprocess the image for your model (you need to adjust this based on your model's input requirements)
-    image = image.resize((224, 224))  # Example size; change it as needed
-    image_array = np.array(image) / 255.0  # Normalize the image
-    image_array = np.expand_dims(image_array, axis=0)  # Add batch dimension
+    # Preprocess the image
+    image_array = preprocess(image)
 
     # Make prediction
     prediction = model.predict(image_array)
 
     # Assuming your model outputs class probabilities
     predicted_class = np.argmax(prediction, axis=1)
-    st.write(f"Predicted Class: {predicted_class[0]}")  # Adjust based on your class mapping
+    
+    # Get class labels
+    labels = gen_labels()
+    predicted_label = labels[predicted_class[0]]
+
+    st.write(f"Predicted Class: {predicted_label}")  # Display the predicted class label
