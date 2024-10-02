@@ -19,6 +19,21 @@ def load_model():
 # Load the model once and reuse it
 model = load_model()
 
+# Set the background image
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-image: url("https://example.com/your-background-image.jpg");
+        background-size: cover;
+        background-position: center;
+        color: white; /* Change text color for better visibility */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Streamlit app layout
 st.title("Waste Classification Model")
 st.write("Upload an image of waste for classification.")
@@ -29,7 +44,6 @@ if image_file is not None:
     # Load and preprocess the image
     image = Image.open(image_file)
     st.image(image, caption="Uploaded Image.", use_column_width=True)
-    st.write("")
     st.write("Classifying...")
 
     # Preprocess the image
