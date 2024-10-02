@@ -18,8 +18,8 @@ html_temp = '''
     <div style="margin-top: -20px">
     <img src="https://i.postimg.cc/W3Lx45QB/Waste-management-pana.png" style="width: 400px;">
     </div>  
-    </div>
-    '''
+  </div>
+'''
 st.markdown(html_temp, unsafe_allow_html=True)
 
 # Subheading for the classifier
@@ -27,11 +27,8 @@ html_temp = '''
     <div>
     <center><h3 style="color: #008080; margin-top: -20px">Check the type here</h3></center>
     </div>
-    '''
+'''
 st.markdown(html_temp, unsafe_allow_html=True)
-
-# Disable deprecation warning for file uploader encoding
-st.set_option('deprecation.showfileUploaderEncoding', False)
 
 # Upload options for the user
 opt = st.selectbox("How do you want to upload the image for classification?", 
