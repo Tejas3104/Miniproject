@@ -4,19 +4,23 @@ import os
 from PIL import Image
 from utils import preprocess, model_arc, gen_labels
 
-model_weights_path = './weights/modelnew.h5'
+# Set the path to your saved model weights
+model_weights_path = './weights/modelnew.weights.h5'
 
+# Cache the model loading to avoid reloading on every interaction
 @st.cache_resource
 def load_model():
-    model = model_arc()
+    model = model_arc()  # Get the architecture from utils.py
     if os.path.exists(model_weights_path):
-        model.load_weights(model_weights_path)
+        model.load_weights(model_weights_path)  # Load saved weights
     else:
         st.error("Model weights file not found. Please check the path.")
     return model
 
+# Load the model when the app starts
 model = load_model()
 
+# Define background and UI
 background_image_url = "https://png.pngtree.com/thumb_back/fh260/background/20220217/pngtree-green-simple-atmospheric-waste-classification-illustration-background-image_953325.jpg"
 
 st.markdown(
@@ -36,6 +40,7 @@ st.markdown(
 st.title("Waste Classification Model")
 st.write("Upload an image of waste for classification.")
 
+# File uploader widget for image input
 image_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"], key="file_uploader_1")
 
 if image_file is not None:
@@ -43,13 +48,18 @@ if image_file is not None:
     st.image(image, caption="Uploaded Image.", use_column_width=True)
     st.write("Classifying...")
 
+    # Preprocess the uploaded image
     image_array = preprocess(image)
 
+    # Predict using the loaded model
     prediction = model.predict(image_array)
 
+    # Get the predicted class index and label
     predicted_class = np.argmax(prediction, axis=1)
     
+    # Get class labels (you need to define these in utils.py)
     labels = gen_labels()
     predicted_label = labels[predicted_class[0]]
 
+    # Display the prediction
     st.write(f"Predicted Class: {predicted_label}")
