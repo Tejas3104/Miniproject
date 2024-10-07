@@ -10,8 +10,7 @@ def preprocess(image):
     - Convert the image to a numpy array.
     - Normalize pixel values (if required).
     """
-    # Define the target size (modify based on your model's input requirements)
-    target_size = (224, 224)  # Example for VGG16
+    target_size = (224, 224)  # Adjust based on your model's input size
     image = image.resize(target_size)
     image = img_to_array(image)  # Convert image to array
     image = np.expand_dims(image, axis=0)  # Add batch dimension
@@ -21,10 +20,9 @@ def preprocess(image):
 def model_arc():
     """
     Build and return the model architecture.
-    Modify this based on the architecture you're using.
+    This architecture should match the one used during training.
     """
     model = Sequential()
-    # Example architecture - modify layers as needed
     model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Conv2D(64, (3, 3), activation='relu'))
@@ -39,4 +37,4 @@ def gen_labels():
     Generate labels for the classes.
     Modify this list according to your specific classes.
     """
-    return ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7"]
+    return ["Cardboard", "Plastic", "Glass", "Metal", "Paper", "Trash", "Compost"]
