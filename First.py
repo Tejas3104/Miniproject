@@ -3,8 +3,26 @@ import numpy as np
 import os
 from PIL import Image
 from utils import preprocess, model_arc, gen_labels
+import gdown  # Importing gdown to download from Google Drive
 
-# Set the path to your saved model weights
+# Function to download the model from Google Drive
+def download_model_from_drive():
+    file_id = '1oAmcWafTCoOABnVWZt2YUavELeJ-YniP'  # Your Google Drive file ID
+    url = f'https://drive.google.com/uc?id={file_id}'
+    output = './weights/modelnew.weights.h5'  # Path to save the downloaded file
+
+    # Check if the model weights are already downloaded, if not, download them
+    if not os.path.exists(output):
+        st.write("Downloading model weights from Google Drive...")
+        os.makedirs('./weights', exist_ok=True)  # Ensure the weights folder exists
+        gdown.download(url, output, quiet=False)
+    else:
+        st.write("Model weights already downloaded.")
+
+# Download the model if not present
+download_model_from_drive()
+
+# Path to the downloaded model weights
 model_weights_path = './weights/modelnew.weights.h5'
 
 # Cache the model loading to avoid reloading on every interaction
